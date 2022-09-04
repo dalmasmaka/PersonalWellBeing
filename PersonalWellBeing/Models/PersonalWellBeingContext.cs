@@ -324,6 +324,10 @@ namespace PersonalWellBeing.Models
                 entity.Property(e => e.Surname)
                     .HasMaxLength(50)
                     .HasColumnName("surname");
+
+                entity.Property(e => e.UserRole)
+                    .HasMaxLength(100)
+                    .HasColumnName("userRole");
             });
 
             modelBuilder.Entity<Dyoga>(entity =>
