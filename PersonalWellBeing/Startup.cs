@@ -32,6 +32,7 @@ namespace PersonalWellBeing
             options.UseSqlServer(Configuration.GetConnectionString("DevConnection")));
 
             services.AddControllers();
+           
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PersonalWellBeing", Version = "v1" });
@@ -47,6 +48,10 @@ namespace PersonalWellBeing
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PersonalWellBeing v1"));
             }
+            app.UseCors(options =>
+           options.WithOrigins("http://localhost:3000")
+           .AllowAnyHeader()
+           .AllowAnyMethod());
 
             app.UseHttpsRedirection();
 

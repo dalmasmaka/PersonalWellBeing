@@ -42,8 +42,8 @@ namespace PersonalWellBeing.Controllers
         public async Task<ActionResult<Ddoctor>> PostDdoctors(Ddoctor ddoctor)
         {
             _context.Ddoctors.Add(ddoctor);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetDddoctors", new { id = ddoctor.DoctorId }, ddoctor);
+            _context.SaveChanges();
+            return CreatedAtAction("GetDdoctors", new { id = ddoctor.DoctorId }, ddoctor);
         }   
 
         // PUT api/<DdoctorsController>/5
