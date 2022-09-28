@@ -11,6 +11,7 @@ namespace PersonalWellBeing.Models
         public int YogaItemId { get; set; }
         public string YogaItemTitle { get; set; }
         public string YogaItemDescription { get; set; }
+        public string PublicId { get; set; }
 
         public virtual Dyoga Yoga { get; set; }
     }

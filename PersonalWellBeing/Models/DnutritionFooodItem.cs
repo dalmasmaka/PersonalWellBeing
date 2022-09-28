@@ -12,7 +12,7 @@ namespace PersonalWellBeing.Models
         public string NutritionFoodItemTitle { get; set; }
         public string NutritionFoodItemDescription { get; set; }
         public string NutritionFoodItemImg { get; set; }
-
+        public string PublicId { get; set; }
         public virtual DnutritionFood NutritionFood { get; set; }
     }
 }

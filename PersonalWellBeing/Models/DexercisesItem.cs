@@ -12,7 +12,7 @@ namespace PersonalWellBeing.Models
         public string ExerciseItemTitle { get; set; }
         public string ExerciseItemDescription { get; set; }
         public string ExerciseItemImg { get; set; }
-
+        public string PublicId { get; set; }
         public virtual Dexercise Exercises { get; set; }
     }
 }

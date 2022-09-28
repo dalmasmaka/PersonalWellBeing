@@ -9,6 +9,7 @@ namespace PersonalWellBeing.Models
     {
         public int AppointmentId { get; set; }
         public int? DoctorId { get; set; }
+        public string aEmail { get; set; }
         public int? UserId { get; set; }
         public string AName { get; set; }
         public string ASurname { get; set; }
@@ -17,6 +18,6 @@ namespace PersonalWellBeing.Models
         public DateTime? ADate { get; set; }
 
         public virtual Ddoctor Doctor { get; set; }
-        public virtual Duser User { get; set; }
+  
     }
 }

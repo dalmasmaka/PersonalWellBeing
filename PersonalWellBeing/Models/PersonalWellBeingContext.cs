@@ -1,4 +1,6 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -6,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace PersonalWellBeing.Models
 {
-    public partial class PersonalWellBeingContext : DbContext
+    public partial class PersonalWellBeingContext : IdentityDbContext<User>
     {
         public PersonalWellBeingContext()
         {
@@ -27,7 +29,7 @@ namespace PersonalWellBeing.Models
         public virtual DbSet<DnutritionFood> DnutritionFoods { get; set; }
         public virtual DbSet<DnutritionFooodItem> DnutritionFooodItems { get; set; }
         public virtual DbSet<DsleepHygiene> DsleepHygienes { get; set; }
-        public virtual DbSet<Duser> Dusers { get; set; }
+        
         public virtual DbSet<Dyoga> Dyogas { get; set; }
         public virtual DbSet<DyogaItem> DyogaItems { get; set; }
 
@@ -35,13 +37,19 @@ namespace PersonalWellBeing.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+
                 optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=PersonalWellBeing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<IdentityRole>()
+                .HasData(
+                    new IdentityRole { Name="Member", NormalizedName = "MEMBER"},
+                    new IdentityRole { Name="Admin", NormalizedName = "ADMIN"}
+                );
             modelBuilder.Entity<Dappointment>(entity =>
             {
                 entity.HasKey(e => e.AppointmentId)
@@ -75,15 +83,12 @@ namespace PersonalWellBeing.Models
 
                 entity.Property(e => e.UserId).HasColumnName("userID");
 
-                entity.HasOne(d => d.Doctor)
-                    .WithMany(p => p.Dappointments)
-                    .HasForeignKey(d => d.DoctorId)
-                    .HasConstraintName("FK__DAppointm__docto__5070F446");
+ //              entity.HasOne(d => d.Doctor)
+   //             .WithMany(p => p.Dappointments)
+     //               .HasForeignKey(d => d.DoctorId)
+       //             .HasConstraintName("FK__DAppointm__docto__5070F446");
 
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Dappointments)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__DAppointm__userI__4F7CD00D");
+               
             });
 
             modelBuilder.Entity<Ddoctor>(entity =>
@@ -174,10 +179,7 @@ namespace PersonalWellBeing.Models
 
                 entity.Property(e => e.UserId).HasColumnName("userID");
 
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Dfeedbacks)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__Dfeedback__userI__6B24EA82");
+               
             });
 
             modelBuilder.Entity<DmentalHealth>(entity =>
@@ -296,40 +298,7 @@ namespace PersonalWellBeing.Models
                     .HasConstraintName("FK__DSleepHyg__menuL__3A81B327");
             });
 
-            modelBuilder.Entity<Duser>(entity =>
-            {
-                entity.HasKey(e => e.UserId)
-                    .HasName("PK__DUser__CB9A1CDF8AA8DA3C");
-
-                entity.ToTable("DUser");
-
-                entity.Property(e => e.UserId).HasColumnName("userID");
-
-                entity.Property(e => e.Email)
-                    .HasMaxLength(100)
-                    .HasColumnName("email");
-
-                entity.Property(e => e.Name)
-                    .HasMaxLength(50)
-                    .HasColumnName("name");
-
-                entity.Property(e => e.Password)
-                    .HasMaxLength(50)
-                    .HasColumnName("password");
-
-                entity.Property(e => e.PhoneNumber)
-                    .HasMaxLength(50)
-                    .HasColumnName("phoneNumber");
-
-                entity.Property(e => e.Surname)
-                    .HasMaxLength(50)
-                    .HasColumnName("surname");
-
-                entity.Property(e => e.UserRole)
-                    .HasMaxLength(100)
-                    .HasColumnName("userRole");
-            });
-
+  
             modelBuilder.Entity<Dyoga>(entity =>
             {
                 entity.HasKey(e => e.YogaId)

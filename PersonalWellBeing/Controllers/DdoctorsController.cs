@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PersonalWellBeing.DTO;
 using PersonalWellBeing.Models;
+using PersonalWellBeing.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,9 +18,14 @@ namespace PersonalWellBeing.Controllers
     public class DdoctorsController : ControllerBase
     {
         private readonly PersonalWellBeingContext _context;
-        public DdoctorsController(PersonalWellBeingContext context)
+        private readonly IMapper _mapper;
+        private readonly ImageService _imageService;
+
+        public DdoctorsController(PersonalWellBeingContext context, IMapper mapper, ImageService imageService)
         {
             _context = context;
+            _mapper = mapper;
+            _imageService = imageService;
         }
         // GET: api/<DdoctorsController>
         [HttpGet]
@@ -26,7 +35,7 @@ namespace PersonalWellBeing.Controllers
         }
 
         // GET api/<DdoctorsController>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name="GetDdoctors")]
         public async Task<ActionResult<Ddoctor>> GetDdoctors(int id)
         {
             var ddoctors = await _context.Ddoctors.FindAsync(id);
@@ -37,58 +46,72 @@ namespace PersonalWellBeing.Controllers
             return ddoctors;
         }
 
-        // POST api/<DdoctorsController>
-        [HttpPost]
-        public async Task<ActionResult<Ddoctor>> PostDdoctors(Ddoctor ddoctor)
-        {
-            _context.Ddoctors.Add(ddoctor);
-            _context.SaveChanges();
-            return CreatedAtAction("GetDdoctors", new { id = ddoctor.DoctorId }, ddoctor);
-        }   
-
+      
         // PUT api/<DdoctorsController>/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDdoctor(int id, Ddoctor ddoctor)
+        [Authorize(Roles ="Admin")]
+        [HttpPut]
+        public async Task<ActionResult<Ddoctor>> UpdateDdoctor([FromForm]UpdateDoctorDTO doctorDTO)
         {
-            if(id!=ddoctor.DoctorId)
+            var ddoctor = await _context.Ddoctors.FindAsync(doctorDTO.DoctorId);
+            if (ddoctor == null) return NotFound();
+            _mapper.Map(doctorDTO, ddoctor);
+            if (doctorDTO.File != null)
             {
-                return BadRequest();
+                var imageResult = await _imageService.AddImageAsync(doctorDTO.File);
+                if (imageResult.Error != null)
+                    return BadRequest(new ProblemDetails { Title = imageResult.Error.Message });
+
+                if (!string.IsNullOrEmpty(ddoctor.PublicId)) 
+                    await _imageService.DeleteImageAsync(ddoctor.PublicId);
+
+                ddoctor.DoctorImg = imageResult.SecureUrl.ToString();
+                ddoctor.PublicId = imageResult.PublicId;
+
             }
-            _context.Entry(ddoctor).State=EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if(!DdoctorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return NoContent();
+            var result=await _context.SaveChangesAsync()>0;
+            if(result) return Ok(ddoctor);
+            return BadRequest(new ProblemDetails { Title = "Problem updating the data" });
         }
 
         // DELETE api/<DdoctorsController>/5
-        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteDdoctors(int id)
         {
-            var ddoctors = await _context.Ddoctors.FindAsync(id);
-            if (ddoctors == null)
+            var ddoctor = await _context.Ddoctors.FindAsync(id);
+            if (ddoctor == null)
             {
                 return NotFound();
             }
-            _context.Ddoctors.Remove(ddoctors);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            if (!string.IsNullOrEmpty(ddoctor.PublicId))
+                await _imageService.DeleteImageAsync(ddoctor.PublicId);
+            _context.Ddoctors.Remove(ddoctor);
+            var result = await _context.SaveChangesAsync() > 0;
+            if (result) return Ok();
+            return BadRequest(new ProblemDetails { Title = "Problem deleting the data" });
         }
-        private bool DdoctorExists(int id)
+
+        [Authorize(Roles  = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult<Ddoctor>>CreateProduct([FromForm]CreateDoctorDTO doctorDTO)
         {
-            return _context.Ddoctors.Any(e => e.DoctorId == id);
+
+            var ddoctor = _mapper.Map<Ddoctor>(doctorDTO);
+            if (doctorDTO.File != null)
+            {
+                var imageResult = await _imageService.AddImageAsync(doctorDTO.File);
+                if (imageResult.Error != null)
+                    return BadRequest(new ProblemDetails { Title = imageResult.Error.Message });
+
+                ddoctor.DoctorImg = imageResult.SecureUrl.ToString();
+                ddoctor.PublicId=imageResult.PublicId;
+
+            }
+            _context.Ddoctors.Add(ddoctor);
+            var result = await _context.SaveChangesAsync() > 0;
+            if (result) return CreatedAtRoute("GetDdoctors", new { Id=ddoctor.DoctorId }, ddoctor);
+            return BadRequest(new ProblemDetails { Title = "Problem creating new data" });
         }
+
     }
 }

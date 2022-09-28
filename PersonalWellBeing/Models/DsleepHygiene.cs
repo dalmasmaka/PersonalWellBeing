@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 #nullable disable
-
+ 
 namespace PersonalWellBeing.Models
 {
     public partial class DsleepHygiene
@@ -12,6 +12,7 @@ namespace PersonalWellBeing.Models
         public string SleepHygieneTitle { get; set; }
         public string SleepHygieneDescription { get; set; }
         public string SleepingHygieneImg { get; set; }
+        public string PublicId { get; set; }
 
         public virtual DmenuList MenuList { get; set; }
     }

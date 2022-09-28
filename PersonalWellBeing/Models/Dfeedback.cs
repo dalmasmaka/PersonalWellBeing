@@ -11,6 +11,6 @@ namespace PersonalWellBeing.Models
         public string FeedbackText { get; set; }
         public int FeedbackId { get; set; }
 
-        public virtual Duser User { get; set; }
+   
     }
 }
