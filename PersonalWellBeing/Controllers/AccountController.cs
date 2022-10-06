@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using PersonalWellBeing.DTO;
 using PersonalWellBeing.Models;
 using PersonalWellBeing.Services;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace PersonalWellBeing.Controllers
@@ -16,10 +19,12 @@ namespace PersonalWellBeing.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly TokenService _tokenService;
+      
         public AccountController(UserManager<User> userManager, TokenService tokenService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+         
         }
         [HttpPost("login")]
         public async Task<ActionResult<UserDTO>>Login(LoginDTO loginDTO)
@@ -59,6 +64,22 @@ namespace PersonalWellBeing.Controllers
                 Email = user.Email,
                 Token = await _tokenService.GenerateToken(user)
             };
+        }
+        
+        [HttpGet("allUsers")]
+        public async Task<List<UserDTO>> getUsers()
+        {
+            var users = _userManager.Users.ToList();
+            var roles = new List<string>();
+
+            var UserViewModel = new List<UserDTO>();
+            foreach (var user in users)
+            {
+                roles = _userManager.GetRolesAsync(user).Result.ToList();
+                UserViewModel.Add(new UserDTO { Email = user.Email, Name = user.UserName, Role = roles.FirstOrDefault() });
+
+            }
+            return UserViewModel;
         }
     }
 }

@@ -9,8 +9,8 @@ export default function LoadingComponents({message='Loading...'}:Props){
     return(
         <Backdrop open={true} invisible={true}>
             <Box display='flex' justifyContent='center' alignItems='center' height='100hv'> 
-                <CircularProgress size={100} color='inherit'/>
-                <Typography variant="h4" sx={{justifyContent:'center', position:'fixed', top:'60%' }}>{message}</Typography>
+                <CircularProgress size={60} color='inherit'/>
+                <Typography variant="h6" sx={{justifyContent:'center', position:'fixed', top:'60%' }}>{message}</Typography>
             </Box>
         </Backdrop>
     )

@@ -19,6 +19,7 @@ namespace PersonalWellBeing.Models
         {
         }
 
+        
         public virtual DbSet<Dappointment> Dappointments { get; set; }
         public virtual DbSet<Ddoctor> Ddoctors { get; set; }
         public virtual DbSet<Dexercise> Dexercises { get; set; }
@@ -29,16 +30,16 @@ namespace PersonalWellBeing.Models
         public virtual DbSet<DnutritionFood> DnutritionFoods { get; set; }
         public virtual DbSet<DnutritionFooodItem> DnutritionFooodItems { get; set; }
         public virtual DbSet<DsleepHygiene> DsleepHygienes { get; set; }
-        
         public virtual DbSet<Dyoga> Dyogas { get; set; }
         public virtual DbSet<DyogaItem> DyogaItems { get; set; }
+     
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-
-                optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=PersonalWellBeing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=PersonalWellBeing4;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
@@ -47,15 +48,18 @@ namespace PersonalWellBeing.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<IdentityRole>()
                 .HasData(
-                    new IdentityRole { Name="Member", NormalizedName = "MEMBER"},
-                    new IdentityRole { Name="Admin", NormalizedName = "ADMIN"}
+                    new IdentityRole { Name = "Member", NormalizedName = "MEMBER" },
+                    new IdentityRole { Name = "Admin", NormalizedName = "ADMIN" }
                 );
+         
             modelBuilder.Entity<Dappointment>(entity =>
             {
                 entity.HasKey(e => e.AppointmentId)
                     .HasName("PK__DAppoint__D067651E69E82C47");
 
                 entity.ToTable("DAppointments");
+
+                entity.HasIndex(e => e.DoctorId, "IX_DAppointments_doctorID");
 
                 entity.Property(e => e.AppointmentId).HasColumnName("appointmentID");
 
@@ -66,6 +70,8 @@ namespace PersonalWellBeing.Models
                 entity.Property(e => e.ADoneDate)
                     .HasColumnType("date")
                     .HasColumnName("aDoneDate");
+
+                entity.Property(e => e.AEmail).HasColumnName("aEmail");
 
                 entity.Property(e => e.AName)
                     .HasMaxLength(50)
@@ -83,12 +89,9 @@ namespace PersonalWellBeing.Models
 
                 entity.Property(e => e.UserId).HasColumnName("userID");
 
- //              entity.HasOne(d => d.Doctor)
-   //             .WithMany(p => p.Dappointments)
-     //               .HasForeignKey(d => d.DoctorId)
-       //             .HasConstraintName("FK__DAppointm__docto__5070F446");
-
-               
+                entity.HasOne(d => d.Doctor)
+                    .WithMany(p => p.Dappointments)
+                    .HasForeignKey(d => d.DoctorId);
             });
 
             modelBuilder.Entity<Ddoctor>(entity =>
@@ -124,6 +127,8 @@ namespace PersonalWellBeing.Models
 
                 entity.ToTable("DExercises");
 
+                entity.HasIndex(e => e.MenuListId, "IX_DExercises_menuListID");
+
                 entity.Property(e => e.ExercisesId).HasColumnName("exercisesID");
 
                 entity.Property(e => e.ExercisesType)
@@ -143,11 +148,11 @@ namespace PersonalWellBeing.Models
                 entity.HasKey(e => e.ExerciseItemId)
                     .HasName("PK__Dexercis__8C0C5190B7455C22");
 
+                entity.HasIndex(e => e.ExercisesId, "IX_DexercisesItems_exercisesID");
+
                 entity.Property(e => e.ExerciseItemId).HasColumnName("exerciseItemID");
 
-                entity.Property(e => e.ExerciseItemDescription)
-                    .HasMaxLength(250)
-                    .HasColumnName("exerciseItemDescription");
+                entity.Property(e => e.ExerciseItemDescription).HasColumnName("exerciseItemDescription");
 
                 entity.Property(e => e.ExerciseItemImg)
                     .HasMaxLength(500)
@@ -178,8 +183,6 @@ namespace PersonalWellBeing.Models
                     .HasColumnName("feedbackText");
 
                 entity.Property(e => e.UserId).HasColumnName("userID");
-
-               
             });
 
             modelBuilder.Entity<DmentalHealth>(entity =>
@@ -187,6 +190,10 @@ namespace PersonalWellBeing.Models
                 entity.HasNoKey();
 
                 entity.ToTable("DMentalHealth");
+
+                entity.HasIndex(e => e.AppointmentId, "IX_DMentalHealth_appointmentID");
+
+                entity.HasIndex(e => e.DoctorId, "IX_DMentalHealth_doctorID");
 
                 entity.Property(e => e.AppointmentId).HasColumnName("appointmentID");
 
@@ -228,6 +235,8 @@ namespace PersonalWellBeing.Models
 
                 entity.ToTable("DNutritionFood");
 
+                entity.HasIndex(e => e.MenuListId, "IX_DNutritionFood_menuListID");
+
                 entity.Property(e => e.NutritionFoodId).HasColumnName("nutritionFoodID");
 
                 entity.Property(e => e.MenuListId).HasColumnName("menuListID");
@@ -247,13 +256,13 @@ namespace PersonalWellBeing.Models
                 entity.HasKey(e => e.NutritionFoodItemId)
                     .HasName("PK__Dnutriti__89A788AA5D848B0C");
 
+                entity.HasIndex(e => e.NutritionFoodId, "IX_DnutritionFooodItems_nutritionFoodID");
+
                 entity.Property(e => e.NutritionFoodItemId).HasColumnName("nutritionFoodItemID");
 
                 entity.Property(e => e.NutritionFoodId).HasColumnName("nutritionFoodID");
 
-                entity.Property(e => e.NutritionFoodItemDescription)
-                    .HasMaxLength(250)
-                    .HasColumnName("nutritionFoodItemDescription");
+                entity.Property(e => e.NutritionFoodItemDescription).HasColumnName("nutritionFoodItemDescription");
 
                 entity.Property(e => e.NutritionFoodItemImg)
                     .HasMaxLength(500)
@@ -276,13 +285,13 @@ namespace PersonalWellBeing.Models
 
                 entity.ToTable("DSleepHygiene");
 
+                entity.HasIndex(e => e.MenuListId, "IX_DSleepHygiene_menuListID");
+
                 entity.Property(e => e.SleepHygieneId).HasColumnName("sleepHygieneID");
 
                 entity.Property(e => e.MenuListId).HasColumnName("menuListID");
 
-                entity.Property(e => e.SleepHygieneDescription)
-                    .HasMaxLength(500)
-                    .HasColumnName("sleepHygieneDescription");
+                entity.Property(e => e.SleepHygieneDescription).HasColumnName("sleepHygieneDescription");
 
                 entity.Property(e => e.SleepHygieneTitle)
                     .HasMaxLength(50)
@@ -298,13 +307,14 @@ namespace PersonalWellBeing.Models
                     .HasConstraintName("FK__DSleepHyg__menuL__3A81B327");
             });
 
-  
             modelBuilder.Entity<Dyoga>(entity =>
             {
                 entity.HasKey(e => e.YogaId)
                     .HasName("PK__DYoga__4B5D0AB97D6D308F");
 
                 entity.ToTable("DYoga");
+
+                entity.HasIndex(e => e.MenuListId, "IX_DYoga_menuListID");
 
                 entity.Property(e => e.YogaId).HasColumnName("yogaID");
 
@@ -325,13 +335,13 @@ namespace PersonalWellBeing.Models
                 entity.HasKey(e => e.YogaItemId)
                     .HasName("PK__DyogaIte__8B2D9BBF50C3DD59");
 
+                entity.HasIndex(e => e.YogaId, "IX_DyogaItems_yogaID");
+
                 entity.Property(e => e.YogaItemId).HasColumnName("yogaItemID");
 
                 entity.Property(e => e.YogaId).HasColumnName("yogaID");
 
-                entity.Property(e => e.YogaItemDescription)
-                    .HasMaxLength(250)
-                    .HasColumnName("yogaItemDescription");
+                entity.Property(e => e.YogaItemDescription).HasColumnName("yogaItemDescription");
 
                 entity.Property(e => e.YogaItemTitle)
                     .HasMaxLength(50)

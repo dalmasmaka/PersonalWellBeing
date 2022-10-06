@@ -7,13 +7,10 @@ import {  Router} from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import { Provider } from 'react-redux';
 import { store } from './app/ourApp/configureApp';
-import { fetchCurrentUser } from './features/account/accountSlice';
-// import { fetchExercisesAsync } from './features/exercises/exercisesSlice';
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
- export const history=createBrowserHistory();
-//  store.dispatch(fetchExercisesAsync());
-store.dispatch(fetchCurrentUser());
+
+export const history=createBrowserHistory();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -21,13 +18,10 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
      <Router history={history}>
-  
       <Provider store={store}>
       <App/>
       </Provider>
-      
     </Router>
-    
   </React.StrictMode>
 );
 

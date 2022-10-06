@@ -12,8 +12,8 @@ namespace PersonalWellBeing.Models
             DyogaItems = new HashSet<DyogaItem>();
         }
 
-        public int? MenuListId { get; set; }
         public int YogaId { get; set; }
+        public int? MenuListId { get; set; }
         public string YogaType { get; set; }
 
         public virtual DmenuList MenuList { get; set; }

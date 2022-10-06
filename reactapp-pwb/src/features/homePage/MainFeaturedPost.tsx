@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -7,7 +6,6 @@ import Box from '@mui/material/Box';
 import MainMenu from "../../features/menu/MainMenu";
 interface MainFeaturedPostProps {
   post: {
-    description: string;
     image: string;
     imageText: string;
     linkText: string;
@@ -29,8 +27,8 @@ export default function MainFeaturedPost(props: MainFeaturedPostProps) {
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
         backgroundImage: `url(${post.image})`,
-        blockSize:600,
-       
+        blockSize: 600,
+
       }}
     >
       {/* Increase the priority of the hero background image */}

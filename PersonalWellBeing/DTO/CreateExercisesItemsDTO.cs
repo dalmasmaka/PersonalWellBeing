@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace PersonalWellBeing.DTO
 {
@@ -10,7 +11,8 @@ namespace PersonalWellBeing.DTO
         [Required]
         public string ExerciseItemDescription { get; set; }
 
-       
-        public string ExerciseItemImg { get; set; }
+
+        [Required]
+        public IFormFile File { get; set; }
     }
 }

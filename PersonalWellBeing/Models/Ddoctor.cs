@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 #nullable disable
 
 namespace PersonalWellBeing.Models
 {
-    public class Ddoctor
+    public partial class Ddoctor
     {
         public Ddoctor()
-       {
-           Dappointments = new HashSet<Dappointment>();
+        {
+            Dappointments = new HashSet<Dappointment>();
         }
 
         public int DoctorId { get; set; }

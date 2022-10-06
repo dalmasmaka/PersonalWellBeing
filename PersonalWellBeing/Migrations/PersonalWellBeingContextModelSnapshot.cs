@@ -48,15 +48,15 @@ namespace PersonalWellBeing.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "46d87f68-eaad-4d22-87df-16958fdd2a53",
-                            ConcurrencyStamp = "bf6f1f5a-3950-4910-85d2-d2a93154453f",
+                            Id = "61aefc30-7e28-4c49-93b3-186e0b41e15c",
+                            ConcurrencyStamp = "7a147514-bfcd-461b-b959-3609cd3ee5b9",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         },
                         new
                         {
-                            Id = "324df60c-1911-4f7d-ab42-3d173456f71e",
-                            ConcurrencyStamp = "f8ad7ea7-915a-48b9-b8e4-d9b88240c4f4",
+                            Id = "0082242a-eb2c-4142-a041-49a2fd2a86bf",
+                            ConcurrencyStamp = "9278460f-9a67-4a8d-9615-29c79ed4d209",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -182,6 +182,10 @@ namespace PersonalWellBeing.Migrations
                         .HasColumnType("date")
                         .HasColumnName("aDoneDate");
 
+                    b.Property<string>("AEmail")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("aEmail");
+
                     b.Property<string>("AName")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
@@ -205,13 +209,10 @@ namespace PersonalWellBeing.Migrations
                         .HasColumnType("int")
                         .HasColumnName("userID");
 
-                    b.Property<string>("aEmail")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("AppointmentId")
                         .HasName("PK__DAppoint__D067651E69E82C47");
 
-                    b.HasIndex("DoctorId");
+                    b.HasIndex(new[] { "DoctorId" }, "IX_DAppointments_doctorID");
 
                     b.ToTable("DAppointments");
                 });
@@ -273,7 +274,7 @@ namespace PersonalWellBeing.Migrations
                     b.HasKey("ExercisesId")
                         .HasName("PK__DExercis__CEBDDBC1C658BF6F");
 
-                    b.HasIndex("MenuListId");
+                    b.HasIndex(new[] { "MenuListId" }, "IX_DExercises_menuListID");
 
                     b.ToTable("DExercises");
                 });
@@ -287,8 +288,7 @@ namespace PersonalWellBeing.Migrations
                         .UseIdentityColumn();
 
                     b.Property<string>("ExerciseItemDescription")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("exerciseItemDescription");
 
                     b.Property<string>("ExerciseItemImg")
@@ -311,7 +311,7 @@ namespace PersonalWellBeing.Migrations
                     b.HasKey("ExerciseItemId")
                         .HasName("PK__Dexercis__8C0C5190B7455C22");
 
-                    b.HasIndex("ExercisesId");
+                    b.HasIndex(new[] { "ExercisesId" }, "IX_DexercisesItems_exercisesID");
 
                     b.ToTable("DexercisesItems");
                 });
@@ -350,9 +350,9 @@ namespace PersonalWellBeing.Migrations
                         .HasColumnType("int")
                         .HasColumnName("doctorID");
 
-                    b.HasIndex("AppointmentId");
+                    b.HasIndex(new[] { "AppointmentId" }, "IX_DMentalHealth_appointmentID");
 
-                    b.HasIndex("DoctorId");
+                    b.HasIndex(new[] { "DoctorId" }, "IX_DMentalHealth_doctorID");
 
                     b.ToTable("DMentalHealth");
                 });
@@ -401,7 +401,7 @@ namespace PersonalWellBeing.Migrations
                     b.HasKey("NutritionFoodId")
                         .HasName("PK__DNutriti__41A0D12F49DC017C");
 
-                    b.HasIndex("MenuListId");
+                    b.HasIndex(new[] { "MenuListId" }, "IX_DNutritionFood_menuListID");
 
                     b.ToTable("DNutritionFood");
                 });
@@ -419,8 +419,7 @@ namespace PersonalWellBeing.Migrations
                         .HasColumnName("nutritionFoodID");
 
                     b.Property<string>("NutritionFoodItemDescription")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("nutritionFoodItemDescription");
 
                     b.Property<string>("NutritionFoodItemImg")
@@ -439,7 +438,7 @@ namespace PersonalWellBeing.Migrations
                     b.HasKey("NutritionFoodItemId")
                         .HasName("PK__Dnutriti__89A788AA5D848B0C");
 
-                    b.HasIndex("NutritionFoodId");
+                    b.HasIndex(new[] { "NutritionFoodId" }, "IX_DnutritionFooodItems_nutritionFoodID");
 
                     b.ToTable("DnutritionFooodItems");
                 });
@@ -460,8 +459,7 @@ namespace PersonalWellBeing.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SleepHygieneDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("sleepHygieneDescription");
 
                     b.Property<string>("SleepHygieneTitle")
@@ -477,7 +475,7 @@ namespace PersonalWellBeing.Migrations
                     b.HasKey("SleepHygieneId")
                         .HasName("PK__DSleepHy__1CBFC5A8E21B391D");
 
-                    b.HasIndex("MenuListId");
+                    b.HasIndex(new[] { "MenuListId" }, "IX_DSleepHygiene_menuListID");
 
                     b.ToTable("DSleepHygiene");
                 });
@@ -502,7 +500,7 @@ namespace PersonalWellBeing.Migrations
                     b.HasKey("YogaId")
                         .HasName("PK__DYoga__4B5D0AB97D6D308F");
 
-                    b.HasIndex("MenuListId");
+                    b.HasIndex(new[] { "MenuListId" }, "IX_DYoga_menuListID");
 
                     b.ToTable("DYoga");
                 });
@@ -523,9 +521,11 @@ namespace PersonalWellBeing.Migrations
                         .HasColumnName("yogaID");
 
                     b.Property<string>("YogaItemDescription")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("yogaItemDescription");
+
+                    b.Property<string>("YogaItemImg")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("YogaItemTitle")
                         .HasMaxLength(50)
@@ -535,7 +535,7 @@ namespace PersonalWellBeing.Migrations
                     b.HasKey("YogaItemId")
                         .HasName("PK__DyogaIte__8B2D9BBF50C3DD59");
 
-                    b.HasIndex("YogaId");
+                    b.HasIndex(new[] { "YogaId" }, "IX_DyogaItems_yogaID");
 
                     b.ToTable("DyogaItems");
                 });
@@ -660,8 +660,7 @@ namespace PersonalWellBeing.Migrations
                 {
                     b.HasOne("PersonalWellBeing.Models.Ddoctor", "Doctor")
                         .WithMany("Dappointments")
-                        .HasForeignKey("DoctorId")
-                        .HasConstraintName("FK__DAppointm__docto__5070F446");
+                        .HasForeignKey("DoctorId");
 
                     b.Navigation("Doctor");
                 });

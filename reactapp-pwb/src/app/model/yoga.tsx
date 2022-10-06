@@ -5,5 +5,5 @@ export interface Yoga{
     yogaItemId: number
     yogaItemTitle: string
     yogaItemDescription: string
-    yogaImg: string
+    yogaItemImg: string
 }

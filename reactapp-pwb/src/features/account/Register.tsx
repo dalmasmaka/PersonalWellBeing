@@ -5,9 +5,9 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import {  Paper } from '@mui/material';
+import { Paper } from '@mui/material';
 import { Link, useHistory } from 'react-router-dom';
-import {useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
 import agent from '../../app/api/agent';
 import { toast } from 'react-toastify';
@@ -35,7 +35,7 @@ export default function Register() {
 
     return (
         <Container component={Paper} maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <Avatar sx={{ m: 1, bgcolor: 'primary' }}>
                 <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
@@ -60,31 +60,32 @@ export default function Register() {
                     {...register('username', { required: 'Username is required' })}
                     error={!!errors.username}
                     helperText={errors?.username?.message}
-               />
-                
+                />
+
                 <TextField
                     margin="normal"
                     fullWidth
                     label="Email address"
-                    {...register('email', { 
+                    {...register('email', {
                         required: 'Email is required',
                         pattern: {
                             value: /^\w+[\w-.]*@\w+((-\w+)|(\w*)).[a-z]{2,3}$/,
                             message: 'Not a valid email address'
-                        } 
+                        }
                     })}
                     error={!!errors.email}
                     helperText={errors?.email?.message}
-                    
-                    
-                    
+
+
+
                 />
                 <TextField
                     margin="normal"
                     fullWidth
                     label="Password"
                     type="password"
-                    {...register('password', {  required: 'Password is required',
+                    {...register('password', {
+                        required: 'Password is required',
                         pattern: {
                             value: /(?=^.{6,10}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&amp;*()_+}{&quot;:;'?/&gt;.&lt;,])(?!.*\s).*$/,
                             message: 'Password does not meet the complexity requirements'

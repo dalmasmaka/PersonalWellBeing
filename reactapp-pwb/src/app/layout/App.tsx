@@ -4,7 +4,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { useCallback, useEffect, useState} from "react";
 import Header from "./Header";
 import MainMenu from "../../features/menu/MainMenu";
-import TheTeam from '../../features/members/TheTeam'
 import { Route,  Switch, } from "react-router-dom";
 import AboutPage from "../../features/about/AboutPage";
 import Doctors from "../../features/doctors/Doctors";
@@ -22,7 +21,10 @@ import Register from "../../features/account/Register";
 import AppointmentForm from "../../features/appointments/AppointmentForm";
 import HomePage from "../../features/homePage/HomePage";
 import ExercisesItems from "../../features/exercises/ExercisesITems";
-import Dashboard from "../../features/admin/Dashboard"
+import Dashboard from "../../features/admin/Dashboard";
+import PrivateRoute from "./PrivateRoute";
+import { fetchDoctorAsync } from "../../features/doctors/doctorSlice";
+import LoadingComponent from "./LoadingComponent";
 
 
 function App() {
@@ -31,29 +33,31 @@ function App() {
   const initApp = useCallback(async()=>{
     try{
       await dispatch(fetchCurrentUser())
+      await dispatch(fetchDoctorAsync());
     }
     catch(error){
       console.log(error)
     }
   },[dispatch])
-
- 
   useEffect(()=>{
     initApp().then(()=>setLoading(false));
   }, [initApp])
   const [darkMode, setDarkMode]=useState(false);
+  //ne qofte se eshte darkmode true merre ngjyren e zeze nese jo tbardhen
   const paletteType=darkMode? 'dark' : 'light';
   const theme = createTheme({
     palette:{
       mode:paletteType,
       background:{
-        default:paletteType==='light'? '#eaeaea' : '#121212'
+        //ne qofte se eshte light mode on merre ngjyren e kalter nese jo te zezen
+        default:paletteType==='light'? '#eaeaea' : '#121212' 
       }
     }
   })
   function handleThemeChange(){
     setDarkMode(!darkMode);
   }
+  if (loading) return <LoadingComponent message='Initialising app...' />
   return (
    <ThemeProvider theme={theme}>
     <ToastContainer position="bottom-right" hideProgressBar/>
@@ -65,18 +69,17 @@ function App() {
        <Grid sx={{mt:4}}>
        <Switch>
        <Route exact path="/mainmenu" component={MainMenu}/>
-           <Route exact path="/dashboard" component={Dashboard}/>
-           <Route exact path="/members" component={TheTeam}/>
-           <Route exact path="/about" component={AboutPage}/>
-           <Route exact path="/exercises" component={ExercisesItems}/>
-           <Route exact path="/doctors"  component={Doctors}/>
-           <Route exact path="/yoga" component={YogaItems} />
-           <Route exact path="/food" component={NutritionFoodItems}/>
-           <Route exact path="/sleep" component={Sleep}/>
-           <Route exact path="/server-error" component={ServerError} />
-           <Route exact path="/login" component={Login}/>
-           <Route exact path="/register" component={Register} />
-           <Route exact path="/appointment" component={AppointmentForm}/>
+           <PrivateRoute roles={['Admin']} path="/dashboard" component={Dashboard}/>
+           <Route path="/about" component={AboutPage}/>
+           <Route path="/exercises" component={ExercisesItems}/>
+           <Route path="/doctors"  component={Doctors}/>
+           <Route path="/yoga" component={YogaItems} />
+           <Route path="/food" component={NutritionFoodItems}/>
+           <Route path="/sleep" component={Sleep}/>
+           <Route path="/server-error" component={ServerError} />
+           <Route path="/login" component={Login}/>
+           <Route path="/register" component={Register} />
+           <Route path="/appointment" component={AppointmentForm}/>
            <Route  component={NotFound}/>
        </Switch>
        </Grid>

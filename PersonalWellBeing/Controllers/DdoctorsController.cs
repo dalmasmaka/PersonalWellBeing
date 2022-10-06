@@ -75,7 +75,7 @@ namespace PersonalWellBeing.Controllers
 
         // DELETE api/<DdoctorsController>/5
         [Authorize(Roles = "Admin")]
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDdoctors(int id)
         {
             var ddoctor = await _context.Ddoctors.FindAsync(id);

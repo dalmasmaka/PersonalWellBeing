@@ -1,28 +1,29 @@
-import { Card, CardMedia, Container, Grid, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Grid, TableFooter, Typography } from "@mui/material";
+import Footer from "./Footer";
+
 import MainFeaturedPost from "./MainFeaturedPost";
 
 
 
+
 export default function HomePage() {
-  
-    const img = require("../../features/homePage/images/homePageImg.jpg");
-    const mainFeaturedPost = {
-        title: 'Personal Well Being',
-        description:
-          "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
-        image: img,
-        imageText: 'main image description',
-        linkText: 'Continue reading…',
-      };    
+
+  const img = require("../../features/homePage/images/homePageImg.jpg");
+  const mainFeaturedPost = {
+    title: '',
+    image: img,
+    imageText: 'main image description',
+    linkText: '',
+  };
   return (
-    
-   <main>
-          <MainFeaturedPost post={mainFeaturedPost} />
-         
-        </main>
-    
-         
+
+    <>
+      <MainFeaturedPost post={mainFeaturedPost} />
+      <Typography variant="h2" align="center">Personal Well Being</Typography>
+      <hr style={{ width: "20%" }} />
+    <Footer/>
+     
+    </>
 
   );
 }

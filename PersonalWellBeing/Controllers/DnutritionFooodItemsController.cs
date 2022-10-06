@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PersonalWellBeing.DTO;
 using PersonalWellBeing.Models;
+using PersonalWellBeing.Services;
 
 namespace PersonalWellBeing.Controllers
 {
@@ -14,10 +18,15 @@ namespace PersonalWellBeing.Controllers
     public class DnutritionFooodItemsController : ControllerBase
     {
         private readonly PersonalWellBeingContext _context;
+        private readonly IMapper _mapper;
+        private readonly ImageService _imageService;
 
-        public DnutritionFooodItemsController(PersonalWellBeingContext context)
+
+        public DnutritionFooodItemsController(PersonalWellBeingContext context, IMapper mapper, ImageService imageService)
         {
             _context = context;
+            _mapper = mapper;
+            _imageService = imageService;
         }
 
         // GET: api/DnutritionFooodItems
@@ -28,7 +37,7 @@ namespace PersonalWellBeing.Controllers
         }
 
         // GET: api/DnutritionFooodItems/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetDnutritionFooodItem")]
         public async Task<ActionResult<DnutritionFooodItem>> GetDnutritionFooodItem(int id)
         {
             var dnutritionFooodItem = await _context.DnutritionFooodItems.FindAsync(id);
@@ -42,66 +51,71 @@ namespace PersonalWellBeing.Controllers
         }
 
         // PUT: api/DnutritionFooodItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDnutritionFooodItem(int id, DnutritionFooodItem dnutritionFooodItem)
+        [Authorize (Roles ="Admin")]
+        [HttpPut]
+        public async Task<ActionResult<DnutritionFooodItem>> UpdateFoodItem([FromForm]UpdateFoodItemDTO foodItemDTO)
         {
-            if (id != dnutritionFooodItem.NutritionFoodItemId)
+            var dfood = await _context.DnutritionFooodItems.FindAsync(foodItemDTO.NutritionFoodItemId);
+            if (dfood == null) return NotFound();
+            _mapper.Map(foodItemDTO, dfood);
+            if( foodItemDTO.File != null)
             {
-                return BadRequest();
-            }
+                var imageResult = await _imageService.AddImageAsync(foodItemDTO.File);
+                if (imageResult.Error != null)
+                    return BadRequest(new ProblemDetails { Title = imageResult.Error.Message });
 
-            _context.Entry(dnutritionFooodItem).State = EntityState.Modified;
+                if (!string.IsNullOrEmpty(dfood.PublicId))
+                    await _imageService.DeleteImageAsync(dfood.PublicId);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DnutritionFooodItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                dfood.NutritionFoodItemImg = imageResult.SecureUrl.ToString();
+                dfood.PublicId = imageResult.PublicId;
 
-            return NoContent();
+            }
+            var result = await _context.SaveChangesAsync() > 0;
+            if (result) return Ok(dfood);
+            return BadRequest(new ProblemDetails { Title = "Problem updating the data" });
         }
 
         // POST: api/DnutritionFooodItems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<DnutritionFooodItem>> PostDnutritionFooodItem(DnutritionFooodItem dnutritionFooodItem)
+        public async Task<ActionResult<DnutritionFooodItem>> PostDnutritionFooodItem([FromForm]CreateFoodItemDTO foodItemDTO)
         {
-            _context.DnutritionFooodItems.Add(dnutritionFooodItem);
-            await _context.SaveChangesAsync();
+            var dfood = _mapper.Map<DnutritionFooodItem>(foodItemDTO);
+            if (foodItemDTO.File != null)
+            {
+                var imageResult = await _imageService.AddImageAsync(foodItemDTO.File);
+                if (imageResult.Error != null)
+                    return BadRequest(new ProblemDetails { Title = imageResult.Error.Message });
 
-            return CreatedAtAction("GetDnutritionFooodItem", new { id = dnutritionFooodItem.NutritionFoodItemId }, dnutritionFooodItem);
+                dfood.NutritionFoodItemImg = imageResult.SecureUrl.ToString();
+                dfood.PublicId = imageResult.PublicId;
+
+            }
+
+            _context.DnutritionFooodItems.Add(dfood);
+            var result = await _context.SaveChangesAsync()>0;
+            if(result) return CreatedAtAction("GetDnutritionFooodItem", new { id = dfood.NutritionFoodItemId }, dfood);
+            return BadRequest(new ProblemDetails { Title = "Problem creating new data" });
         }
 
         // DELETE: api/DnutritionFooodItems/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDnutritionFooodItem(int id)
         {
-            var dnutritionFooodItem = await _context.DnutritionFooodItems.FindAsync(id);
-            if (dnutritionFooodItem == null)
+            var dfood = await _context.DnutritionFooodItems.FindAsync(id);
+            if (dfood == null)
             {
                 return NotFound();
             }
-
-            _context.DnutritionFooodItems.Remove(dnutritionFooodItem);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool DnutritionFooodItemExists(int id)
-        {
-            return _context.DnutritionFooodItems.Any(e => e.NutritionFoodItemId == id);
+            if (!string.IsNullOrEmpty(dfood.PublicId))
+                await _imageService.DeleteImageAsync(dfood.PublicId);
+            _context.DnutritionFooodItems.Remove(dfood);
+            var result= await _context.SaveChangesAsync()>0;
+            if (result) return Ok();
+            return BadRequest(new ProblemDetails { Title = "Problem deleting the data" });
         }
     }
 }

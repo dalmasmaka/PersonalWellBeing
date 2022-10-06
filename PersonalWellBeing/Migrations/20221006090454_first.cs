@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PersonalWellBeing.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class first : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -55,11 +55,26 @@ namespace PersonalWellBeing.Migrations
                     doctorName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     doctorSurname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     doctorSummary = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    doctorIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    doctorIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__DDoctors__72248596E96C7FBC", x => x.doctorID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Dfeedbacks",
+                columns: table => new
+                {
+                    feedbackID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    userID = table.Column<int>(type: "int", nullable: true),
+                    feedbackText = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Dfeedbac__2613FDC4442F5FB1", x => x.feedbackID);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,24 +89,6 @@ namespace PersonalWellBeing.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__DMenuLis__D5EC925C92A9CDE6", x => x.menuListID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DUser",
-                columns: table => new
-                {
-                    userID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    surname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    phoneNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    userRole = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__DUser__CB9A1CDF8AA8DA3C", x => x.userID);
                 });
 
             migrationBuilder.CreateTable(
@@ -201,6 +198,32 @@ namespace PersonalWellBeing.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DAppointments",
+                columns: table => new
+                {
+                    appointmentID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    doctorID = table.Column<int>(type: "int", nullable: true),
+                    userID = table.Column<int>(type: "int", nullable: true),
+                    aName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    aSurname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    aPurpose = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    aDoneDate = table.Column<DateTime>(type: "date", nullable: true),
+                    aDate = table.Column<DateTime>(type: "datetime", nullable: true),
+                    aEmail = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__DAppoint__D067651E69E82C47", x => x.appointmentID);
+                    table.ForeignKey(
+                        name: "FK_DAppointments_DDoctors_doctorID",
+                        column: x => x.doctorID,
+                        principalTable: "DDoctors",
+                        principalColumn: "doctorID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DExercises",
                 columns: table => new
                 {
@@ -248,8 +271,9 @@ namespace PersonalWellBeing.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     menuListID = table.Column<int>(type: "int", nullable: true),
                     sleepHygieneTitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    sleepHygieneDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    sleepingHygieneIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    sleepHygieneDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    sleepingHygieneIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -283,122 +307,6 @@ namespace PersonalWellBeing.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DAppointments",
-                columns: table => new
-                {
-                    appointmentID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    doctorID = table.Column<int>(type: "int", nullable: true),
-                    userID = table.Column<int>(type: "int", nullable: true),
-                    aName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    aSurname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    aPurpose = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    aDoneDate = table.Column<DateTime>(type: "date", nullable: true),
-                    aDate = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__DAppoint__D067651E69E82C47", x => x.appointmentID);
-                    table.ForeignKey(
-                        name: "FK__DAppointm__docto__5070F446",
-                        column: x => x.doctorID,
-                        principalTable: "DDoctors",
-                        principalColumn: "doctorID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK__DAppointm__userI__4F7CD00D",
-                        column: x => x.userID,
-                        principalTable: "DUser",
-                        principalColumn: "userID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Dfeedbacks",
-                columns: table => new
-                {
-                    feedbackID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    userID = table.Column<int>(type: "int", nullable: true),
-                    feedbackText = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__Dfeedbac__2613FDC4442F5FB1", x => x.feedbackID);
-                    table.ForeignKey(
-                        name: "FK__Dfeedback__userI__6B24EA82",
-                        column: x => x.userID,
-                        principalTable: "DUser",
-                        principalColumn: "userID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DexercisesItems",
-                columns: table => new
-                {
-                    exerciseItemID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    exercisesID = table.Column<int>(type: "int", nullable: true),
-                    exerciseItemTitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    exerciseItemDescription = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    exerciseItemIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__Dexercis__8C0C5190B7455C22", x => x.exerciseItemID);
-                    table.ForeignKey(
-                        name: "FK__Dexercise__exerc__628FA481",
-                        column: x => x.exercisesID,
-                        principalTable: "DExercises",
-                        principalColumn: "exercisesID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DnutritionFooodItems",
-                columns: table => new
-                {
-                    nutritionFoodItemID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    nutritionFoodID = table.Column<int>(type: "int", nullable: true),
-                    nutritionFoodItemTitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    nutritionFoodItemDescription = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    nutritionFoodItemIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__Dnutriti__89A788AA5D848B0C", x => x.nutritionFoodItemID);
-                    table.ForeignKey(
-                        name: "FK__Dnutritio__nutri__656C112C",
-                        column: x => x.nutritionFoodID,
-                        principalTable: "DNutritionFood",
-                        principalColumn: "nutritionFoodID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DyogaItems",
-                columns: table => new
-                {
-                    yogaItemID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    yogaID = table.Column<int>(type: "int", nullable: true),
-                    yogaItemTitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    yogaItemDescription = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__DyogaIte__8B2D9BBF50C3DD59", x => x.yogaItemID);
-                    table.ForeignKey(
-                        name: "FK__DyogaItem__yogaI__68487DD7",
-                        column: x => x.yogaID,
-                        principalTable: "DYoga",
-                        principalColumn: "yogaID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "DMentalHealth",
                 columns: table => new
                 {
@@ -421,15 +329,84 @@ namespace PersonalWellBeing.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "2f978454-846c-49f1-852a-79e7c75bd3fe", "c806e27b-ab68-44ec-9677-e73caba8c94b", "Member", "MEMBER" });
+            migrationBuilder.CreateTable(
+                name: "DexercisesItems",
+                columns: table => new
+                {
+                    exerciseItemID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    exercisesID = table.Column<int>(type: "int", nullable: true),
+                    exerciseItemTitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    exerciseItemDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    exerciseItemIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Dexercis__8C0C5190B7455C22", x => x.exerciseItemID);
+                    table.ForeignKey(
+                        name: "FK__Dexercise__exerc__628FA481",
+                        column: x => x.exercisesID,
+                        principalTable: "DExercises",
+                        principalColumn: "exercisesID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DnutritionFooodItems",
+                columns: table => new
+                {
+                    nutritionFoodItemID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    nutritionFoodID = table.Column<int>(type: "int", nullable: true),
+                    nutritionFoodItemTitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    nutritionFoodItemDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    nutritionFoodItemIMG = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Dnutriti__89A788AA5D848B0C", x => x.nutritionFoodItemID);
+                    table.ForeignKey(
+                        name: "FK__Dnutritio__nutri__656C112C",
+                        column: x => x.nutritionFoodID,
+                        principalTable: "DNutritionFood",
+                        principalColumn: "nutritionFoodID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DyogaItems",
+                columns: table => new
+                {
+                    yogaItemID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    yogaID = table.Column<int>(type: "int", nullable: true),
+                    yogaItemTitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    yogaItemDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    YogaItemImg = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__DyogaIte__8B2D9BBF50C3DD59", x => x.yogaItemID);
+                    table.ForeignKey(
+                        name: "FK__DyogaItem__yogaI__68487DD7",
+                        column: x => x.yogaID,
+                        principalTable: "DYoga",
+                        principalColumn: "yogaID",
+                        onDelete: ReferentialAction.Restrict);
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "e0ab3dc6-eab6-41c1-a1ee-02db4c7f29ba", "ac85a870-3f7b-458e-bf86-42d9dfb43b8a", "Admin", "ADMIN" });
+                values: new object[] { "61aefc30-7e28-4c49-93b3-186e0b41e15c", "7a147514-bfcd-461b-b959-3609cd3ee5b9", "Member", "MEMBER" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "0082242a-eb2c-4142-a041-49a2fd2a86bf", "9278460f-9a67-4a8d-9615-29c79ed4d209", "Admin", "ADMIN" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -476,11 +453,6 @@ namespace PersonalWellBeing.Migrations
                 column: "doctorID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DAppointments_userID",
-                table: "DAppointments",
-                column: "userID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_DExercises_menuListID",
                 table: "DExercises",
                 column: "menuListID");
@@ -489,11 +461,6 @@ namespace PersonalWellBeing.Migrations
                 name: "IX_DexercisesItems_exercisesID",
                 table: "DexercisesItems",
                 column: "exercisesID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Dfeedbacks_userID",
-                table: "Dfeedbacks",
-                column: "userID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DMentalHealth_appointmentID",
@@ -586,9 +553,6 @@ namespace PersonalWellBeing.Migrations
 
             migrationBuilder.DropTable(
                 name: "DDoctors");
-
-            migrationBuilder.DropTable(
-                name: "DUser");
 
             migrationBuilder.DropTable(
                 name: "DMenuList");

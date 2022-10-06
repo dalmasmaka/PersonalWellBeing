@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PersonalWellBeing.DTO;
 using PersonalWellBeing.Models;
+using PersonalWellBeing.Services;
 
 namespace PersonalWellBeing.Controllers
 {
@@ -14,10 +18,14 @@ namespace PersonalWellBeing.Controllers
     public class DyogaItemsController : ControllerBase
     {
         private readonly PersonalWellBeingContext _context;
+        private readonly IMapper _mapper;
+        private readonly ImageService _imageService;
 
-        public DyogaItemsController(PersonalWellBeingContext context)
+        public DyogaItemsController(PersonalWellBeingContext context, IMapper mapper, ImageService imageService)
         {
             _context = context;
+            _mapper = mapper;
+            _imageService = imageService;
         }
 
         // GET: api/DyogaItems
@@ -28,8 +36,8 @@ namespace PersonalWellBeing.Controllers
         }
 
         // GET: api/DyogaItems/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<DyogaItem>> GetDyogaItem(int id)
+        [HttpGet("{id}", Name = "GetDyogaItems")]
+        public async Task<ActionResult<DyogaItem>> GetDyogaItems(int id)
         {
             var dyogaItem = await _context.DyogaItems.FindAsync(id);
 
@@ -42,66 +50,72 @@ namespace PersonalWellBeing.Controllers
         }
 
         // PUT: api/DyogaItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDyogaItem(int id, DyogaItem dyogaItem)
+        [Authorize(Roles = "Admin")]
+        [HttpPut]
+        public async Task<ActionResult<DyogaItem>> UpdateYoga([FromForm]UpdateYogaItemDTO yogaItemDTO)
         {
-            if (id != dyogaItem.YogaItemId)
+            var dyoga = await _context.DyogaItems.FindAsync(yogaItemDTO.YogaItemId);
+            if (dyoga == null) return NotFound();
+            _mapper.Map(yogaItemDTO, dyoga);
+            if (yogaItemDTO.File != null)
             {
-                return BadRequest();
-            }
+                var imageResult = await _imageService.AddImageAsync(yogaItemDTO.File);
+                if (imageResult.Error != null)
+                    return BadRequest(new ProblemDetails { Title = imageResult.Error.Message });
 
-            _context.Entry(dyogaItem).State = EntityState.Modified;
+                if (!string.IsNullOrEmpty(dyoga.PublicId))
+                    await _imageService.DeleteImageAsync(dyoga.PublicId);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DyogaItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                dyoga.YogaItemImg = imageResult.SecureUrl.ToString();
+                dyoga.PublicId = imageResult.PublicId;
 
-            return NoContent();
+            }
+            var result = await _context.SaveChangesAsync() > 0;
+            if (result) return Ok(dyoga);
+            return BadRequest(new ProblemDetails { Title = "Problem updating the data" });
+
         }
 
         // POST: api/DyogaItems
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<DyogaItem>> PostDyogaItem(DyogaItem dyogaItem)
-        {
-            _context.DyogaItems.Add(dyogaItem);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDyogaItem", new { id = dyogaItem.YogaItemId }, dyogaItem);
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult<DyogaItem>> PostDyogaItem([FromForm] CreateYogaItemDTO yogaItemDTO)
+        {
+            var dyoga = _mapper.Map<DyogaItem>(yogaItemDTO);
+            if (yogaItemDTO.File != null)
+            {
+                var imageResult = await _imageService.AddImageAsync(yogaItemDTO.File);
+                if (imageResult.Error != null)
+                    return BadRequest(new ProblemDetails { Title = imageResult.Error.Message });
+
+                dyoga.YogaItemImg = imageResult.SecureUrl.ToString();
+                dyoga.PublicId = imageResult.PublicId;
+
+            }
+            _context.DyogaItems.Add(dyoga);
+            var result = await _context.SaveChangesAsync() > 0;
+            if (result) return CreatedAtRoute("GetDyogaItems", new { Id = dyoga.YogaItemId }, dyoga);
+            return BadRequest(new ProblemDetails { Title = "Problem creating new data" });
         }
 
         // DELETE: api/DyogaItems/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDyogaItem(int id)
+        public async Task<ActionResult> DeleteDyogaItem(int id)
         {
             var dyogaItem = await _context.DyogaItems.FindAsync(id);
             if (dyogaItem == null)
             {
                 return NotFound();
             }
+            if (!string.IsNullOrEmpty(dyogaItem.PublicId))
+                await _imageService.DeleteImageAsync(dyogaItem.PublicId);
 
             _context.DyogaItems.Remove(dyogaItem);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool DyogaItemExists(int id)
-        {
-            return _context.DyogaItems.Any(e => e.YogaItemId == id);
+            var result = await _context.SaveChangesAsync()>0;
+            if (result) return Ok();
+            return BadRequest(new ProblemDetails { Title = "Problem deleting data" });
         }
     }
 }
